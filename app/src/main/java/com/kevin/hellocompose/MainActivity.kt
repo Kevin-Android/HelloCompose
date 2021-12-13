@@ -2,11 +2,14 @@ package com.kevin.hellocompose
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -30,15 +33,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.kevin.hellocompose.ui.theme.HelloComposeTheme
+import kotlinx.coroutines.launch
 
 
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-//        WindowCompat.setDecorFitsSystemWindows(window, false)
-
         setContent {
             HelloComposeTheme() {
                 ComposeView(
@@ -71,13 +72,43 @@ fun PreviewComposeView() {
 fun ComposeView(
     onNsdClicked: () -> Unit
 ) {
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
     val navController = rememberNavController()
     Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(labels[selectIndex]) },
+                navigationIcon = {
+                    IconButton(
+                        onClick = {
+                            Log.i(TAG, "是否展开$drawerState.isOpen")
+                            if (drawerState.isOpen) {
+                                scope.launch { drawerState.close() }
+                            } else {
+                                scope.launch { drawerState.open() }
+                            }
+                        },
+                    ) {
+                        Icon(Icons.Rounded.Menu, contentDescription = null)
+                    }
+                },
+                actions = {
+                    // RowScope 在这里，所以这些图标会被水平放置
+                    IconButton(onClick = { /* doSomething() */ }) {
+                        Icon(Icons.Rounded.Search, contentDescription = "搜索")
+                    }
+                    // RowScope 在这里，所以这些图标会被水平放置
+                    IconButton(onClick = { /* doSomething() */ }) {
+                        Icon(Icons.Rounded.MoreVert, contentDescription = "搜索")
+                    }
 
+                }
+            )
+        },
         bottomBar = {
             BuildBottomBar(labels = labels, navController)
         },
-
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onNsdClicked
@@ -87,12 +118,72 @@ fun ComposeView(
         },
         isFloatingActionButtonDocked = true,
         floatingActionButtonPosition = FabPosition.Center,
-        topBar = {
-            BuildTopAppBar()
-        }
+        drawerContent = {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(text = if (drawerState.isClosed) ">>> Swipe >>>" else "<<< Swipe <<<")
+                Spacer(Modifier.height(20.dp))
+                Divider()
+                LazyColumn {
+                    // Add a single item
+                    item (key = 1) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 15.dp)
+                        ) {
+                            Icon(
+                                Icons.Rounded.Send,
+                                contentDescription = null
+                            )
+                            Text("帮助",
+                                modifier = Modifier.padding(horizontal = 20.dp)
+                            )
 
 
-    ) {
+                        }
+                    }
+                    item (key = 2) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 15.dp)
+                        ) {
+                            Icon(
+                                Icons.Rounded.Send,
+                                contentDescription = null
+                            )
+                            Text("帮助",
+                                modifier = Modifier.padding(horizontal = 20.dp)
+                            )
+
+
+                        }
+                    }
+                }
+
+            }
+//            ModalDrawer(
+//                drawerState = drawerState,
+//                drawerContent = {
+//                    Button(
+//                        onClick = { scope.launch { drawerState.close() } },
+//                        content = { Text("Close Drawer") }
+//                    )
+//                },
+//                content = {
+
+//                }
+//            )
+        },
+        scaffoldState = rememberScaffoldState(drawerState = drawerState),
+
+
+        ) {
         NavHost(
             navController = navController,
             startDestination = labels[0]
@@ -110,33 +201,6 @@ fun ComposeView(
 
     }
 }
-
-@Preview
-@Composable
-fun BuildTopAppBar() {
-    TopAppBar(
-        title = { Text(labels[selectIndex]) },
-        navigationIcon = {
-            IconButton(
-                onClick = { /* 做一点事() */ },
-            ) {
-                Icon(Icons.Rounded.Menu, contentDescription = null)
-            }
-        },
-        actions = {
-            // RowScope 在这里，所以这些图标会被水平放置
-            IconButton(onClick = { /* doSomething() */ }) {
-                Icon(Icons.Rounded.Search, contentDescription = "搜索")
-            }
-            // RowScope 在这里，所以这些图标会被水平放置
-            IconButton(onClick = { /* doSomething() */ }) {
-                Icon(Icons.Rounded.MoreVert, contentDescription = "搜索")
-            }
-
-        }
-    )
-}
-
 
 @Preview
 @Composable

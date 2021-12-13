@@ -138,21 +138,6 @@ class NsdActivity : ComponentActivity() {
             Text(text = "Hello $name!")
             Button(
                 onClick = {
-                    manager.discoverPeers(channel, object : WifiP2pManager.ActionListener {
-
-                        override fun onSuccess() {
-                            Log.i(TAG,"此处为发现启动成功时的代码")
-                            // 此处为发现启动成功时的代码。
-                            // 实际上尚未发现任何服务，因此此方法通常可以留空。
-                            // 对等点发现的代码位于 onReceive 方法中，详述如下。
-                        }
-
-                        override fun onFailure(reasonCode: Int) {
-                            Log.i(TAG,"此处为发现启动失败时的代码: $reasonCode")
-                            // 此处为发现启动失败时的代码。
-                            // 提醒用户出现问题。
-                        }
-                    })
                 }
             ) {
                 Text("开启")
