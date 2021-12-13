@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">HelloCompose</string>
+    <string name="title_activity_nsd">NsdActivity</string>
+</resources>
